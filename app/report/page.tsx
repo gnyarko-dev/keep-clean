@@ -130,23 +130,24 @@ export default function ReportPage() {
       const text = response.text();
       
       try {
-        const parsedResult = JSON.parse(text);
+        const parsedResult = JSON.parse(text.replace(/```json|```/g, '').trim());
         if (parsedResult.wasteType && parsedResult.quantity && parsedResult.confidence) {
-          setVerificationResult(parsedResult);
-          setVerificationStatus('success');
-          setNewReport({
-            ...newReport,
-            type: parsedResult.wasteType,
-            amount: parsedResult.quantity
-          });
+            setVerificationResult(parsedResult);
+            setVerificationStatus('success');
+            setNewReport({
+                ...newReport,
+                type: parsedResult.wasteType,
+                amount: parsedResult.quantity
+            });
         } else {
-          console.error('Invalid verification result:', parsedResult);
+            console.error('Invalid verification result:', parsedResult);
+            setVerificationStatus('failure');
+        }
+        } catch (error) {
+          console.error('Failed to parse JSON response:', text);
           setVerificationStatus('failure');
         }
-      } catch (error) {
-        console.error('Failed to parse JSON response:', text);
-        setVerificationStatus('failure');
-      }
+    
     } catch (error) {
       console.error('Error verifying waste:', error);
       setVerificationStatus('failure');

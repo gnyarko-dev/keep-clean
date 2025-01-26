@@ -28,13 +28,11 @@ export async function createReport(
   wasteType: string,
   amount: string,
   imageUrl?: string,
-  type?: string,
+  // type?: string,
   verificationResult?: any
 ) {
   try {
-    const [report] = await db
-      .insert(Reports)
-      .values({
+    const [report] = await db.insert(Reports).values({
         userId,
         location,
         wasteType,

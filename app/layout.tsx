@@ -11,6 +11,14 @@ import { getAvailableRewards, getUserByEmail } from '../utils/db/actions'
 
 const inter = Inter({ subsets: ['latin'] })
 
+// Define a type for the rewards
+type Reward = {
+  id: number;
+  amount: number;
+  userId: number;
+  // Add other fields as needed
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -25,12 +33,16 @@ export default function RootLayout({
         const userEmail = localStorage.getItem('userEmail')
         if (userEmail) {
           const user = await getUserByEmail(userEmail)
-          console.log('user from layout', user);
+          console.log('user from layout', user)
           
           if (user) {
-            const availableRewards = await getAvailableRewards(user.id) as any
-            console.log('availableRewards from layout', availableRewards);
-                        setTotalEarnings(availableRewards)
+            // Use the defined Reward type instead of `any`
+            const availableRewards = await getAvailableRewards(user.id) as Reward[]
+            console.log('availableRewards from layout', availableRewards)
+            
+            // Calculate total earnings
+            const total = availableRewards.reduce((sum, reward) => sum + reward.amount, 0)
+            setTotalEarnings(total)
           }
         }
       } catch (error) {

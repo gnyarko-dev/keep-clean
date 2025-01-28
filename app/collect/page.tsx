@@ -1,11 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Trash2, MapPin, CheckCircle, Clock, Upload, Loader, Calendar, Weight, Search } from 'lucide-react'     //ArrowRight, Camera,
+import { Trash2, MapPin, CheckCircle, Clock, Upload, Loader, Calendar, Weight, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'react-hot-toast'
 import { getWasteCollectionTasks, updateTaskStatus, saveReward, saveCollectedWaste, getUserByEmail } from '@/utils/db/actions'
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import Image from 'next/image'
 
 // Make sure to set your Gemini API key in your environment variables
 const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
@@ -42,11 +43,9 @@ export default function CollectPage() {
             setUser(fetchedUser)
           } else {
             toast.error('User not found. Please log in again.')
-            // Redirect to login page or handle this case appropriately
           }
         } else {
           toast.error('User not logged in. Please log in.')
-          // Redirect to login page or handle this case appropriately
         }
 
         // Fetch tasks
@@ -71,7 +70,6 @@ export default function CollectPage() {
     quantityMatch: boolean;
     confidence: number;
   } | null>(null)
-  const [reward, setReward] = useState<number | null>(null)
 
   const handleStatusChange = async (taskId: number, newStatus: CollectionTask['status']) => {
     if (!user) {
@@ -128,7 +126,7 @@ export default function CollectPage() {
         {
           inlineData: {
             data: base64Data,
-            mimeType: 'image/jpeg', // Adjust this if you know the exact type
+            mimeType: 'image/jpeg',
           },
         },
       ];
@@ -150,10 +148,7 @@ export default function CollectPage() {
       const text = response.text();
   
       try {
-        // Remove triple backticks and trim whitespace
         const cleanText = text.replace(/```json|```/g, '').trim();
-  
-        // Parse the cleaned JSON text
         const parsedResult = JSON.parse(cleanText);
   
         setVerificationResult({
@@ -166,15 +161,11 @@ export default function CollectPage() {
   
         if (parsedResult.wasteTypeMatch && parsedResult.quantityMatch && parsedResult.confidence > 0.7) {
           await handleStatusChange(selectedTask.id, 'verified');
-          const earnedReward = Math.floor(Math.random() * 50) + 10; // Random reward between 10 and 59
+          const earnedReward = Math.floor(Math.random() * 50) + 10;
   
-          // Save the reward
           await saveReward(user.id, earnedReward);
-  
-          // Save the collected waste
           await saveCollectedWaste(selectedTask.id, user.id, parsedResult);
   
-          setReward(earnedReward);
           toast.success(`Verification successful! You earned ${earnedReward} tokens!`, {
             duration: 5000,
             position: 'top-center',
@@ -194,7 +185,6 @@ export default function CollectPage() {
       setVerificationStatus('failure');
     }
   };
-  
 
   const filteredTasks = tasks.filter(task =>
     task.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -334,7 +324,13 @@ export default function CollectPage() {
               </div>
             </div>
             {verificationImage && (
-              <img src={verificationImage} alt="Verification" className="mb-4 rounded-md w-full" />
+              <Image
+                src={verificationImage}
+                alt="Verification"
+                className="mb-4 rounded-md w-full"
+                width={500}
+                height={300}
+              />
             )}
             <Button
               onClick={handleVerify}
@@ -364,13 +360,6 @@ export default function CollectPage() {
           </div>
         </div>
       )}
-
-      {/* Add a conditional render to show user info or login prompt */}
-      {/* {user ? (
-        <p className="text-sm text-gray-600 mb-4">Logged in as: {user.name}</p>
-      ) : (
-        <p className="text-sm text-red-600 mb-4">Please log in to collect waste and earn rewards.</p>
-      )} */}
     </div>
   )
 }

@@ -8,6 +8,7 @@ import { Libraries } from '@react-google-maps/api';
 import { createUser, getUserByEmail, createReport, getRecentReports } from '@/utils/db/actions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast'
+import Image from 'next/image';
 
 const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -249,7 +250,14 @@ export default function ReportPage() {
         
         {preview && (
           <div className="mt-4 mb-8">
-            <img src={preview} alt="Waste preview" className="max-w-full h-auto rounded-xl shadow-md" />
+            <Image
+              src={preview}
+              alt="Waste preview"
+              width={1200} // Set the desired width (adjust based on your image's aspect ratio)
+              height={800} // Set the desired height (adjust based on your image's aspect ratio)
+              className="rounded-xl shadow-md"
+              style={{ width: '100%', height: 'auto' }} // Ensure responsiveness
+            />
           </div>
         )}
         

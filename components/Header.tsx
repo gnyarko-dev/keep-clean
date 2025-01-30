@@ -17,7 +17,21 @@ import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider"
 import { useMediaQuery } from "../hooks/useMediaQuery"
 import { createUser, getUnreadNotifications, markNotificationAsRead, getUserByEmail, getUserBalance } from "../utils/db/actions"
 
+// Define a custom Notification type
+interface Notification {
+  id: number;
+  type: string;
+  createdAt: Date;
+  userId: number;
+  message: string;
+  isRead: boolean;
+}
+
+// Ensure clientId is defined
 const clientId = process.env.WEB3_AUTH_CLIENT_ID;
+if (!clientId) {
+  throw new Error('WEB3_AUTH_CLIENT_ID is not defined in the environment variables.');
+}
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -35,7 +49,7 @@ const privateKeyProvider = new EthereumPrivateKeyProvider({
 });
 
 const web3auth = new Web3Auth({
-  clientId,
+  clientId, // Now guaranteed to be a string
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   privateKeyProvider,
 });
@@ -51,7 +65,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<any>(null);
   const pathname = usePathname()
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]); // Use custom Notification type
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [balance, setBalance] = useState(0)
 
@@ -93,7 +107,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
         const user = await getUserByEmail(userInfo.email);
         if (user) {
           const unreadNotifications = await getUnreadNotifications(user.id);
-          setNotifications(unreadNotifications);
+          setNotifications(unreadNotifications); // Now matches the custom Notification type
         }
       }
     };

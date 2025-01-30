@@ -14,9 +14,10 @@ const inter = Inter({ subsets: ['latin'] })
 // Define a type for the rewards
 type Reward = {
   id: number;
-  amount: number;
-  userId: number;
-  // Add other fields as needed
+  name: string;
+  cost: number;
+  description: string | null;
+  collectionInfo: string;
 }
 
 export default function RootLayout({
@@ -36,12 +37,12 @@ export default function RootLayout({
           console.log('user from layout', user)
           
           if (user) {
-            // Use the defined Reward type instead of `any`
+            // Use the defined Reward type
             const availableRewards = await getAvailableRewards(user.id) as Reward[]
             console.log('availableRewards from layout', availableRewards)
             
-            // Calculate total earnings
-            const total = availableRewards.reduce((sum, reward) => sum + reward.amount, 0)
+            // Calculate total earnings using the `cost` field
+            const total = availableRewards.reduce((sum, reward) => sum + reward.cost, 0)
             setTotalEarnings(total)
           }
         }
